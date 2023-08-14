@@ -1,8 +1,10 @@
 import 'dotenv';
 import Express from 'express';
+import bodyParser from 'body-parser';
 
-import { User } from "./models/User"
 import { myDataSource } from "./app-data-source"
+
+import { createUser } from "./controllers/user-controller"
 
 // establish database connection
 myDataSource
@@ -15,12 +17,10 @@ myDataSource
     })
 
 const app = Express();
+app.use(bodyParser.json());
 
-app.get('/', async (req, res) => {
-    const users = await myDataSource.getRepository(User).find()
-    res.json(users)
-});
+app.post('/users/new', createUser);
 
 app.listen(3000, () => {
-	console.log('Server started on port 3000');
+    console.log('Server started on port 3000');
 });
