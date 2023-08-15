@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { z } from "zod";
 
-import { myDataSource } from "../app-data-source";
-import { User } from "../models/User";
+import { myDataSource } from "../../app-data-source";
+import { User } from "../../models/User";
 
 const CreateUserSchema = z.object({
     username: z.string().min(3).max(255),
