@@ -44,11 +44,7 @@ export const updateUser = async (req: Request<{userId: string}>, res: Response) 
             return;
         }
 
-		existingUser.username = username
-		existingUser.email = email
-		existingUser.firstName = firstName
-		existingUser.lastName = lastName
-		await myDataSource.getRepository(User).save(existingUser)
+		await myDataSource.getRepository(User).update(id, { username, email, firstName, lastName });
 
 		res.status(200).json({ error: undefined, data: { id: existingUser.id, email, username, firstName, lastName }, success: true })
     } catch (err) {
