@@ -6,6 +6,7 @@ import { myDataSource } from "./app-data-source"
 
 import { createUser } from "./controllers/user/create-user"
 import { updateUser } from './controllers/user/update-user';
+import { getUser } from './controllers/user/get-user';
 
 // establish database connection
 myDataSource
@@ -22,7 +23,9 @@ app.use(bodyParser.json());
 
 app.post('/users/new', createUser);
 app.post('/users/edit/:userId', updateUser);
+app.get('/users', getUser);
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
 });
