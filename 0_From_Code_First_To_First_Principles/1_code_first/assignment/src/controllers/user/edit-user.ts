@@ -5,7 +5,7 @@ import { myDataSource } from "../../app-data-source";
 import { User } from "../../models/User";
 import { ServerErrors } from "../../common/errors";
 
-const UpdateUserSchema = z.object({
+const EditUserSchema = z.object({
 	id: z.coerce.number().int().positive(),
     username: z.string().min(3).max(255),
     email: z.string().email().max(255),
@@ -13,20 +13,19 @@ const UpdateUserSchema = z.object({
     lastName: z.string().max(255),
 });
 
-const UpdateUserErrorTypes = {
+const EditUserErrorTypes = {
 	UserNotFound: 'UserNotFound',
 	EmailAlreadyInUse: 'EmailAlreadyInUse',
-	UsernameAlreadyTaken: 'UsernameAlreadyTaken',
-	ValidationError: 'ValidationError',
+	UsernameAlreadyTaken: 'UsernameAlreadyTaken'
 }
 
-export const updateUser = async (req: Request<{userId: string}>, res: Response) => {
+export const editUser = async (req: Request<{userId: string}>, res: Response) => {
     try {
-        const { id, username, email, firstName, lastName } = UpdateUserSchema.parse({ id: req.params.userId, ...req.body });
+        const { id, username, email, firstName, lastName } = EditUserSchema.parse({ id: req.params.userId, ...req.body });
 		
 		const existingUser = await myDataSource.getRepository(User).findOne({ where: { id } });
 		if (!existingUser) {
-			res.status(404).json({ error: UpdateUserErrorTypes.UserNotFound, data: undefined, success: false });
+			res.status(404).json({ error: EditUserErrorTypes.UserNotFound, data: undefined, success: false });
 			return;
 		}
 
@@ -38,8 +37,8 @@ export const updateUser = async (req: Request<{userId: string}>, res: Response) 
 
         if (conflictingUser) {
             const error = conflictingUser.username === username 
-				? UpdateUserErrorTypes.ValidationError 
-				: UpdateUserErrorTypes.EmailAlreadyInUse;
+				? EditUserErrorTypes.UsernameAlreadyTaken 
+				: EditUserErrorTypes.EmailAlreadyInUse;
             res.status(409).json({ error, data: undefined, success: false });
             return;
         }
@@ -48,9 +47,9 @@ export const updateUser = async (req: Request<{userId: string}>, res: Response) 
 
 		res.status(200).json({ error: undefined, data: { id: existingUser.id, email, username, firstName, lastName }, success: true })
     } catch (err) {
-        console.error(err)
+        console.error(JSON.stringify(err, null, 4))
 		if (err instanceof ZodError) {
-        	res.status(400).json({ error: UpdateUserErrorTypes.ValidationError, data: undefined, success: false })
+        	res.status(400).json({ error: ServerErrors.ValidationError, data: undefined, success: false })
 		} else {
 			res.status(500).json({ error: ServerErrors.UnknownError, data: undefined, success: false })
 		}
