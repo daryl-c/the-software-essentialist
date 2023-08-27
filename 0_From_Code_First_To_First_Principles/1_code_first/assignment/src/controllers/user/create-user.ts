@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import { z } from "zod";
+import { ZodError, z } from "zod";
 
 import { myDataSource } from "../../app-data-source";
 import { User } from "../../models/User";
+import { ServerErrors } from "../../common/errors";
 
 const CreateUserSchema = z.object({
     username: z.string().min(3).max(255),
@@ -23,6 +24,7 @@ export const createUser = async (req: Request, res: Response) => {
         const { username, password, email, firstName, lastName } = CreateUserSchema.parse(req.body);
 
         const existingUser = await myDataSource.getRepository(User).findOne({ where: [{ username }, { email }] });
+
         if (existingUser) {
             const error = existingUser.username === username ? CreateUserErrors.ValidationError : CreateUserErrors.EmailAlreadyInUse;
             res.status(409).json({ error, data: undefined, success: false });
@@ -40,6 +42,11 @@ export const createUser = async (req: Request, res: Response) => {
         res.status(201).json({ error: undefined, data: { id: user.id, email, username, firstName, lastName }, success: true })
     } catch (err) {
         console.error(err)
-        res.status(400).json({ error: CreateUserErrors.ValidationError, data: undefined, success: false })
+        
+        if (err instanceof ZodError) {
+        	res.status(400).json({ error: CreateUserErrors.ValidationError, data: undefined, success: false })
+		} else {
+			res.status(500).json({ error: ServerErrors.UnknownError, data: undefined, success: false })
+		}
     }
 }
