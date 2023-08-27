@@ -10,8 +10,7 @@ const SearchUserSchema = z.object({
 });
 
 const GetUserErrors = {
-	UserNotFound: 'UserNotFound',
-	ValidationError: 'ValidationError',
+	UserNotFound: 'UserNotFound'
 }
 
 export const getUser = async (req: Request<{}, {}, { email?: string}>, res: Response) => {
@@ -27,9 +26,9 @@ export const getUser = async (req: Request<{}, {}, { email?: string}>, res: Resp
 		const { id, username, firstName, lastName } = existingUser;
 		res.status(200).json({ error: undefined, data: { id, email, username, firstName, lastName }, success: true });
     } catch (err) {
-        console.error(err)
+        console.error(JSON.stringify(err, null, 4))
         if (err instanceof ZodError) {
-        	res.status(400).json({ error: GetUserErrors.ValidationError, data: undefined, success: false })
+        	res.status(400).json({ error: ServerErrors.ValidationError, data: undefined, success: false })
 		} else {
 			res.status(500).json({ error: ServerErrors.UnknownError, data: undefined, success: false })
 		}
