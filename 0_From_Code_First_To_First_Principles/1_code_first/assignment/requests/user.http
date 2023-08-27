@@ -1,0 +1,28 @@
+### Create User
+
+POST http://localhost:3000/users/new HTTP/1.1
+content-type: application/json
+
+{
+    "username": "user1",
+	"password": "12341234",
+    "email": "user1@gmail.com",
+    "firstName": "Fuser",
+    "lastName": "Luser"
+}
+
+### Update User by id
+
+POST http://localhost:3000/users/edit/:USER_ID HTTP/1.1
+content-type: application/json
+
+{
+    "username": "user1Updated",
+    "email": "user1Updated@gmail.com",
+    "firstName": "FuserUpdated",
+    "lastName": "LuserUpdated"
+}
+
+### Get User by email 
+
+GET http://localhost:3000/users?email=:USER_EMAIL HTTP/1.1
